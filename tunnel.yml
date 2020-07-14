@@ -4,7 +4,6 @@
       inlets_type: server
     roles:
       - name: inlets
-        type: server
         become: true
       - role: nginx
         become: true
