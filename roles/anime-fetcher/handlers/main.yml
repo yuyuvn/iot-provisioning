@@ -1,0 +1,6 @@
+- name: Restart anime fetcher
+  systemd:
+    name: anime-fetcher
+    state: restarted
+    daemon_reload: yes
+

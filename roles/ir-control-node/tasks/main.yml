@@ -1,0 +1,35 @@
+- name: Install via git
+  git:
+    dest: "{{ services_path }}/ir-control-node"
+    repo: 'https://github.com/yuyuvn/ir-control-node'
+  notify:
+    - Restart IR control service
+
+- name: Install node modules
+  yarn:
+    path: "{{ services_path }}/ir-control-node"
+
+- name: Copy binary IR control node
+  template:
+    src: ir-control-node
+    dest: /usr/local/bin/ir-control-node
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart IR control service
+
+- name: Copy systemd IR control node
+  template:
+    src: ir-control-node.service
+    dest: /etc/systemd/system/ir-control-node.service
+    owner: root
+    group: root
+  notify:
+    - Restart IR control service
+
+- name: Enable IR control node
+  systemd:
+    name: ir-control-node
+    state: started
+    enabled: yes

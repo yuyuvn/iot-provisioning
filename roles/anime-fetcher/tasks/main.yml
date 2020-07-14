@@ -1,0 +1,45 @@
+- name: Install via git
+  git:
+    dest: "{{ services_path }}/anime-fetcher"
+    repo: 'https://github.com/yuyuvn/anime-fetcher'
+  notify:
+    - Restart anime fetcher
+
+- name: Install node modules
+  yarn:
+    path: "{{ services_path }}/anime-fetcher"
+
+- name: Copy binary anime fetcher
+  template:
+    src: anime-fetcher
+    dest: /usr/local/bin/anime-fetcher
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart anime fetcher
+
+- name: Copy secret
+  template:
+    src: client_secret.json
+    dest: "{{ services_path }}/anime-fetcher/client_secret.json"
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart anime fetcher
+
+- name: Copy systemd anime fetcher
+  template:
+    src: anime-fetcher.service
+    dest: /etc/systemd/system/anime-fetcher.service
+    owner: root
+    group: root
+  notify:
+    - Restart anime fetcher
+
+- name: Enable anime fetcher
+  systemd:
+    name: anime-fetcher
+    state: started
+    enabled: yes

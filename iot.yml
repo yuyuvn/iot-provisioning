@@ -1,0 +1,13 @@
+---
+  - hosts: pi
+    vars:
+      inlets_type: client
+    roles:
+      - name: nodejs
+      - name: ir-control-node
+        become: true
+      - name: anime-fetcher
+        become: true
+      - name: inlets
+        become: true
+

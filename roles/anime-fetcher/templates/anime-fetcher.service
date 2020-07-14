@@ -1,0 +1,8 @@
+[Unit]
+Description=Anime fetcher
+
+[Service]
+ExecStart=/usr/local/bin/anime-fetcher
+
+[Install]
+WantedBy=multi-user.target

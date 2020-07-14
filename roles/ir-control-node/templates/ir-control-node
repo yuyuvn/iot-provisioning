@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd {{ services_path }}/ir-control-node
+node index.js

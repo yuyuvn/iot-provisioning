@@ -1,0 +1,14 @@
+---
+- include: nvm.yml
+
+- name: Install git
+  apt:
+    pkg:
+      - git
+    state: present
+
+- name: Install yarn
+  npm:
+    name: yarn
+    global: yes
+    state: latest

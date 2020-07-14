@@ -1,0 +1,6 @@
+- name: Restart IR control service
+  systemd:
+    name: ir-control-node
+    state: restarted
+    daemon_reload: yes
+

@@ -1,0 +1,15 @@
+- name: Install curl
+  apt:
+    pkg:
+      - curl
+    state: present
+
+- name: Install inlets
+  shell: curl -sLS https://get.inlets.dev | sh
+  args:
+    creates: /usr/local/bin/inlets
+
+- include_tasks: inlets.yml
+  with_items: "{{ domains }}"
+  loop_control:
+    loop_var: domain
