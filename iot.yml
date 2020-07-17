@@ -10,4 +10,5 @@
         become: true
       - name: inlets
         become: true
+      - name: pihole
 

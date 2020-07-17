@@ -1,0 +1,48 @@
+- shell: which pihole
+  register: result_path
+  ignore_errors: True
+
+- name: Install pihole
+  block:
+    - name: "Download Pi-Hole installer"
+      get_url:
+        url: https://install.pi-hole.net
+        dest: ~/install-pihole.sh
+        mode: 0740
+
+    - name: Create pihole configuration directory
+      become: True
+      file:
+        name: "{{ fspath_pihole_config }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Create pihole configuration
+      become: True
+      template:
+        src: setupVars.conf
+        dest: "{{ fspath_pihole_config }}/setupVars.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install Pi-Hole
+      shell: "~/install-pihole.sh --unattended"
+      become: True
+      register: dbg_install_pihole
+
+    - name: Set PiHole to update every week
+      become: True
+      replace:
+        path: /etc/cron.d/pihole
+        regexp: '^#(.*updatePihole.*)$'
+        replace: '\1'
+        backup: yes
+  when: result_path is failed
+
+- name: Delete installer
+  file:
+    path: ~/install-pihole.sh
+    state: absent
