@@ -11,4 +11,5 @@
       - name: inlets
         become: true
       - name: pihole
+      - name: golang
 
