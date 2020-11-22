@@ -16,5 +16,4 @@ ansible-playbook -i inventory/hosts --ask-vault-pass iot.yml
 ```
 
 ## TODO
-* Create terraform to create GCP project and oauth2 credencials
 * Provisioning for my curtain bot

@@ -21,14 +21,14 @@
 - name: Copy proxy config
   template:
     src: etc/nginx/sites-enabled/inlets.conf
-    dest: /etc/nginx/sites-enabled/inlets_{{ domain.subdomain }}.conf
+    dest: /etc/nginx/sites-enabled/inlets_{{ item.subdomain }}.conf
     owner: root
     group: root
     mode: 0644
   notify: reload nginx
   with_items: "{{ domains }}"
   loop_control:
-    loop_var: domain
+    loop_var: item
 
 - name: start nginx
   become: true

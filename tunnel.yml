@@ -1,10 +1,11 @@
 ---
-  - hosts: oggy
-    vars:
-      inlets_type: server
-    roles:
-      - name: inlets
-        become: true
-      - role: nginx
-        become: true
-
+- hosts: oggy
+  vars:
+    inlets_type: server
+  roles:
+  - role: lets-encrypt
+    become: true
+  - name: inlets
+    become: true
+  - role: nginx
+    become: true

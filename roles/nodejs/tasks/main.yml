@@ -8,6 +8,7 @@
     state: present
 
 - name: Install yarn
+  become: true
   npm:
     name: yarn
     global: yes
