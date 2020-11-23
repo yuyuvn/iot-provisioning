@@ -1,8 +1,8 @@
 [Unit]
-Description=Inlets for {{ domain.subdomain }}
+Description=Inlets for {{ item.subdomain }}
 
 [Service]
-ExecStart=/usr/local/bin/inlets_{{ domain.subdomain }}
+ExecStart=/usr/local/bin/inlets_{{ item.subdomain }}
 
 [Install]
 WantedBy=multi-user.target

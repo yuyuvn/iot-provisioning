@@ -12,4 +12,4 @@
 - include_tasks: inlets.yml
   with_items: "{{ domains }}"
   loop_control:
-    loop_var: domain
+    loop_var: item

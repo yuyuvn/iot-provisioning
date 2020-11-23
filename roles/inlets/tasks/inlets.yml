@@ -1,24 +1,24 @@
-- name: Copy binary tunnel {{ domain.subdomain }}
+- name: Copy binary tunnel {{ item.subdomain }}
   template:
     src: inlets
-    dest: /usr/local/bin/inlets_{{ domain.subdomain }}
+    dest: /usr/local/bin/inlets_{{ item.subdomain }}
     mode: 0755
     owner: root
     group: root
   notify:
     - Restart all tunnels
 
-- name: Copy systemd file tunnel {{ domain.subdomain }}
+- name: Copy systemd file tunnel {{ item.subdomain }}
   template:
     src: inlets.service
-    dest: /etc/systemd/system/inlets_{{ domain.subdomain }}.service
+    dest: /etc/systemd/system/inlets_{{ item.subdomain }}.service
     owner: root
     group: root
   notify:
     - Restart all tunnels
 
-- name: Enable tunnel {{ domain.subdomain }}
+- name: Enable tunnel {{ item.subdomain }}
   systemd:
-    name: inlets_{{ domain.subdomain }}
+    name: inlets_{{ item.subdomain }}
     state: started
     enabled: yes
