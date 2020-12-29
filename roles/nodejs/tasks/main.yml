@@ -6,6 +6,7 @@
     pkg:
       - git
     state: present
+  become: true
 
 - name: Install yarn
   become: true

@@ -1,0 +1,10 @@
+---
+# tasks file for pipoe2h.piddns
+
+- include_vars: "{{ item }}"
+  with_items:
+  - defaults/config.yml
+  - defaults/passwords.yml
+
+- include: dyndns.yml
+- include: ddclient.yml

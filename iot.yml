@@ -1,15 +1,35 @@
 ---
-  - hosts: pi
-    vars:
-      inlets_type: client
-    roles:
-      - name: nodejs
-      - name: ir-control-node
-        become: true
-      - name: anime-fetcher
-        become: true
-      - name: inlets
-        become: true
-      - name: pihole
-      - name: golang
+- hosts: pi
+  environment:
+    NVM_DIR: /home/pi/.nvm
+    PATH: /home/pi/.nvm/versions/node/v14.15.3/bin:{{ ansible_env.PATH }} # TODO change node version to dynamic
+  roles:
+  - name: nodejs
+    tags:
+    - nodejs
+  - name: ir-control-node
+    become: true
+    tags:
+    - services
+    - ir
+  - name: pihole
+    tags:
+    - pihole
+  - name: golang
+    tags:
+    - golang
+  - role: lets-encrypt
+    become: true
+    tags:
+    - ssl
+    - lets-encrypt
+  - role: nginx
+    become: true
+    tags:
+    - ssl
+    - nginx
+  - role: plexmediaserver
+    become: true
+    tags:
+    - plexmediaserver
 

@@ -1,8 +1,24 @@
+- name: Create group nginx
+  group:
+    name: nginx
+    state: present
+
+- name: Create user nginx
+  user:
+    name: nginx
+    group: nginx
+    state: present
+
+- name: Update Package
+  apt:
+    upgrade: dist
+    update_cache: yes
+
 - name: Install Package
   apt:
     pkg:
-      - nginx
-    state: present
+    - nginx
+    state: latest
 
 - name: Disable default config
   file:
@@ -13,17 +29,17 @@
   copy:
     src: etc/nginx/nginx.conf
     dest: /etc/nginx/nginx.conf
-    owner: root
-    group: root
+    owner: nginx
+    group: nginx
     mode: 0644
   notify: reload nginx
 
 - name: Copy proxy config
   template:
-    src: etc/nginx/sites-enabled/inlets.conf
-    dest: /etc/nginx/sites-enabled/inlets_{{ item.subdomain }}.conf
-    owner: root
-    group: root
+    src: etc/nginx/sites-enabled/site.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ item.subdomain }}.conf
+    owner: nginx
+    group: nginx
     mode: 0644
   notify: reload nginx
   with_items: "{{ domains }}"

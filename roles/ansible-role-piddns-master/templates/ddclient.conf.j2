@@ -1,0 +1,6 @@
+protocol=piddns
+use=web, web=ipinfo.io/ip
+server={{ dyndns.url }}
+login={{ dyndns.phpuser }}
+password='{{ dyndns_phppass }}'
+{{ dyndns.hostname }}.{{ dyndns.domain }}

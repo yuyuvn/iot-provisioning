@@ -1,11 +1,21 @@
 - name: install pip3
   apt:
     name: python3-pip
-    state: present 
+    state: present
+
+- name: Replace python to python3
+  shell: mv /usr/bin/python /usr/bin/python.bk && ln -s /usr/bin/python3 /usr/bin/python
+  become: yes
+  args:
+    creates: /usr/bin/python.bk
 
 - name: "Install google-auth lib"
   pip:
     name: google-auth
+
+- name: "Install requests lib"
+  pip:
+    name: requests
 
 - name: "Create required directories in /etc/letsencrypt"
   file:
@@ -74,6 +84,15 @@
   loop: "{{ acme_challenge_your_domain.challenge_data_dns | dictsort }}"
   when: acme_challenge_your_domain is changed
 
+- name: Pause for DNS updated
+  pause:
+    seconds: 10
+  retries: 10
+  delay: 10
+  until: "item[1][0] in lookup('community.general.dig', item[0] + './TXT')"
+  loop: "{{ acme_challenge_your_domain.challenge_data_dns | dictsort }}"
+  when: acme_challenge_your_domain is changed
+
 - name: "Complete Let's Encrypt challenges"
   acme_certificate:
     acme_directory: "{{ acme_directory }}"
@@ -89,5 +108,5 @@
   retries: 10
   delay: 10
   register: result
-  until: result.cert_days
+  until: "'cert_days' in result"
   when: acme_challenge_your_domain is changed

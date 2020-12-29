@@ -29,7 +29,7 @@
         mode: 0644
 
     - name: Install Pi-Hole
-      shell: "~/install-pihole.sh --unattended"
+      shell: "/home/pi/install-pihole.sh --unattended"
       become: True
       register: dbg_install_pihole
 
@@ -40,6 +40,18 @@
         regexp: '^#(.*updatePihole.*)$'
         replace: '\1'
         backup: yes
+
+    - name: Change lighttp to 81
+      become: True
+      shell: sed -i 's/= 80/= 81/' /etc/lighttpd/lighttpd.conf
+
+    - name: reload lighttp
+      become: true
+      systemd:
+        name: lighttp
+        state: reloaded
+        daemon_reload: yes
+  
   when: result_path is failed
 
 - name: Delete installer

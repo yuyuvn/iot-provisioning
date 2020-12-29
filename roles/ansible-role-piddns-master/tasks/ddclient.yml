@@ -1,0 +1,72 @@
+---
+
+- name: Check if ddclient-piddns.conf file exists
+  stat:
+    path: /etc/ddclient-piddns.conf
+  register: ddclient_piddns
+
+- name: Transfer the ddclient.conf file into the Raspberry Pi
+  template:
+    src: "{{ role_path }}/templates/ddclient.conf.j2"
+    dest: /etc/ddclient.conf
+    owner: root
+    group: root
+    mode: 0600
+  when: ddclient_piddns.stat.exists == false
+
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages.ddclient }}"
+
+- name: Start and enable service
+  service:
+    name: ddclient
+    state: started
+    enabled: yes
+
+- name: Transfer ddclient-piddns executable
+  template:
+    src: "{{ role_path }}/templates/ddclient.j2"
+    dest: /usr/sbin/ddclient-piddns
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Check if /etc/default/ddclient exists
+  stat:
+    path: /etc/default/ddclient
+  register: ddclient_default
+
+- name: Rename /etc/default/ddclient
+  shell: mv /etc/default/ddclient /etc/default/ddclient.bak
+  when: ddclient_default.stat.exists
+
+- name: Check /etc/ddclient.conf exists
+  stat:
+    path: /etc/ddclient.conf
+  register: ddclient_conf
+
+- name: Rename /etc/ddclient.conf to /etc/ddclient-piddns.conf
+  shell: mv /etc/ddclient.conf /etc/ddclient-piddns.conf
+  when: ddclient_conf.stat.exists
+  notify: restart ddclient
+
+- name: Modify script name in /etc/init.d/ddclient
+  replace:
+    dest: "/etc/init.d/ddclient"
+    regexp: '^NAME="ddclient"$'
+    replace: 'NAME="ddclient-piddns"'
+  notify: restart ddclient
+
+- name: Modify the run mode to daemon in /etc/init.d/ddclient
+  replace:
+    dest: "/etc/init.d/ddclient"
+    regexp: '^run_daemon=false$'
+    replace: 'run_daemon=true'
+  notify: restart ddclient
+
+- name: Update systemctl
+  shell: systemctl daemon-reload
+  when: ddclient_piddns.stat.exists == false

@@ -1,0 +1,17 @@
+---
+
+cpanel:
+  url: "https://<your_cpanel_url>:2083"
+  user: "<your_cpanel_username>"
+
+dyndns:
+  domain: "<your_public_domain>" # The domain of the DynDNS hostname. E.g. domain.com
+  hostname: "<your_dyndns_hostname>" # The hostname to update. The FQDN must be already created in your DNS server. E.g. dyndns.domain.com
+  phpuser: "<dyndns_username_to_use>" # The username you want to use for the DynDNS page (PHP Authentication). E.g. dyndnsuser
+  url: "<your_dyndns_url>" # The base URL to host the DynDNS page: E.g. www.domain.com (DON'T add http(s)://)
+  page: "<your_dyndns_page>" # The DynDNS PHP page to create. Recommended: dyndns.php
+
+ftp:
+  hostname: "<your_ftp_server>" # E.g. ftp.domain.com
+  user: "<your_ftp_username>"
+  path: "<your_full_website_path>" # The website path to upload the PHP page. E.g. /public_html/www.domain.com"

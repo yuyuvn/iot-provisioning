@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  remote_user: root
+  gather_facts: false
+  roles:
+    - pipoe2h.piddns
+  post_tasks:
+    - name: Check ddclient has updated successfuly the dynamic DNS record
+      wait_for:
+        path: /var/cache/ddclient/ddclient-piddns.cache
+        search_regex: 'status=good'
+        delay: 10
+        timeout: 300
+      register: result
+      ignore_errors: yes
+
+    - debug: msg="ddclient has updated your dynamic DNS {{ dyndns.hostname }} successfuly"
+      when: result|success
+
+    - debug: msg="ddclient couldn't updated your dynamic DNS. Please check the /var/log/syslog file to get more information"
+      when: result|failed

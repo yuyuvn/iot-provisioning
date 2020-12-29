@@ -1,0 +1,7 @@
+---
+# handlers file for pipoe2h.piddns
+
+- name: restart ddclient
+  service:
+    name: ddclient
+    state: restarted
