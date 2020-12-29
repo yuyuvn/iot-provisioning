@@ -8,9 +8,20 @@
     state: present
   become: true
 
+- name: Link binary
+  include_tasks: link.yml    
+  loop:
+  - node
+  - npm
+
 - name: Install yarn
   become: true
   npm:
     name: yarn
     global: yes
     state: latest
+
+- name: Link binary
+  include_tasks: link.yml    
+  loop:
+  - yarn

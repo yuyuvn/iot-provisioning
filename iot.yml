@@ -1,8 +1,5 @@
 ---
 - hosts: pi
-  environment:
-    NVM_DIR: /home/pi/.nvm
-    PATH: /home/pi/.nvm/versions/node/v14.15.3/bin:{{ ansible_env.PATH }} # TODO change node version to dynamic
   roles:
   - name: nodejs
     tags:
