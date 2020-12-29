@@ -35,78 +35,8 @@
   args:
     creates: "{{ letsencrypt_account_key }}"
 
-- name: "Generate Let's Encrypt private key"
-  shell: "openssl genrsa 4096 | tee /etc/letsencrypt/keys/{{ domain }}.key"
-  args:
-    creates: "/etc/letsencrypt/keys/{{ domain }}.key"
-
-- name: "Generate Let's Encrypt CSR"
-  shell: "openssl req -new -sha256 -key /etc/letsencrypt/keys/{{ domain }}.key -subj \"/CN={{ domain }}\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"\n[SAN]\nsubjectAltName=DNS:{{ domain }},DNS:*.{{ domain }}\")) | tee /etc/letsencrypt/csrs/{{ domain }}.csr"
-  args:
-    executable: /bin/bash
-    creates: "/etc/letsencrypt/csrs/{{ domain }}.csr"
-
-- name: "Create managed zone"
-  gcp_dns_managed_zone:
-    name: "{{ managed_zone_name }}"
-    dns_name: "{{ domain }}."
-    project: "{{ gcp_project }}"
-    description: "Ansible managed zone"
-    auth_kind: serviceaccount
-    service_account_contents: "{{ gcp_serviceaccount_content }}"
-    state: present
-  register: managed_zone
-
-- name: "Begin Let's Encrypt challenges"
-  acme_certificate:
-    account_key_src: "{{ letsencrypt_account_key }}"
-    account_email: "{{ acme_email }}"
-    src: "{{ letsencrypt_csrs_dir }}/{{ domain }}.csr"
-    cert: "{{ letsencrypt_certs_dir }}/{{ domain }}.crt"
-    challenge: "{{ acme_challenge_type }}"
-    acme_directory: "{{ acme_directory }}"
-    acme_version: "{{ acme_version }}"
-    terms_agreed: yes
-    remaining_days: 60
-  register: acme_challenge_your_domain
-
-- name: "Create TXT record"
-  gcp_dns_resource_record_set:
-    name: "{{ item[0] }}."
-    managed_zone: "{{ managed_zone }}"
-    type: "TXT"
-    ttl: 60
-    target: "{{ item[1] | list }}"
-    project: "{{ gcp_project }}"
-    auth_kind: serviceaccount
-    service_account_contents: "{{ gcp_serviceaccount_content }}"
-    state: present
-  loop: "{{ acme_challenge_your_domain.challenge_data_dns | dictsort }}"
-  when: acme_challenge_your_domain is changed
-
-- name: Pause for DNS updated
-  pause:
-    seconds: 10
-  retries: 10
-  delay: 10
-  until: "item[1][0] in lookup('community.general.dig', item[0] + './TXT')"
-  loop: "{{ acme_challenge_your_domain.challenge_data_dns | dictsort }}"
-  when: acme_challenge_your_domain is changed
-
-- name: "Complete Let's Encrypt challenges"
-  acme_certificate:
-    acme_directory: "{{ acme_directory }}"
-    acme_version: "{{ acme_version }}"
-    account_key_src: "{{ letsencrypt_account_key }}"
-    account_email: "{{ acme_email }}"
-    challenge: "{{ acme_challenge_type }}"
-    csr: "{{ letsencrypt_csrs_dir }}/{{ domain }}.csr"
-    dest: "{{ letsencrypt_certs_dir }}/{{ domain }}.crt"
-    chain_dest: "{{ letsencrypt_certs_dir }}/chain_{{ domain }}.crt"
-    fullchain_dest: "{{ letsencrypt_certs_dir }}/fullchain_{{ domain }}"
-    data: "{{ acme_challenge_your_domain }}"
-  retries: 10
-  delay: 10
-  register: result
-  until: "'cert_days' in result"
-  when: acme_challenge_your_domain is changed
+- name: "Challenge"
+  include_tasks: challenge.yml
+  with_items: "{{ [domains.v4, domains.v6] }}"
+  loop_control:
+    loop_var: target
