@@ -20,9 +20,9 @@ source ansible/bin/activate
 My default password
 
 ## Commands
-### Provisioning tunnel server
+### Provisioning pi server
 ```bash
-ansible-playbook -i inventory/hosts --ask-vault-pass tunnel.yml
+ansible-playbook -i inventory/hosts --ask-vault-pass iot.yml
 ```
 
 ### Provisioning monitor server
