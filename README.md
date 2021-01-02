@@ -25,9 +25,9 @@ My default password
 ansible-playbook -i inventory/hosts --ask-vault-pass tunnel.yml
 ```
 
-### Provisioning iot server
+### Provisioning monitor server
 ```bash
-ansible-playbook -i inventory/hosts --ask-vault-pass iot.yml
+ansible-playbook -i inventory/hosts --ask-vault-pass monitor.yml
 ```
 
 ## TODO

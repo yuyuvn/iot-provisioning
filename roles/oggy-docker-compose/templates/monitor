@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+set -o pipefail
+
+cd {{ services_path }}/monitor
+
+export DOCKER_HOST=unix:///var/run/docker.sock
+
+/usr/bin/docker image prune -f
+/usr/bin/docker container prune -f
+/usr/local/bin/docker-compose pull
+/usr/local/bin/docker-compose stop || true
+/usr/local/bin/docker-compose up

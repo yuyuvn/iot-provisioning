@@ -1,7 +1,0 @@
----
-# defaults file for pipoe2h.piddns
-
-ftp_port: 21
-  
-# ATTENTION: Turn off the following setting can incurs on a high security risk since your credentials are passed out in plain text
-ftp_secure: true # False if your web hosting provider doesn't support TLS.

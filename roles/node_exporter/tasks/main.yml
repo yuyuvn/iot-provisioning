@@ -1,0 +1,14 @@
+- name: Copy systemd node-exporter
+  template:
+    src: node-exporter.service
+    dest: /etc/systemd/system/node-exporter.service
+    owner: root
+    group: root
+  notify:
+    - Restart node-exporter
+
+- name: Enable node-exporter
+  systemd:
+    name: node-exporter
+    state: started
+    enabled: yes

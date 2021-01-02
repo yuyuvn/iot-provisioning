@@ -1,8 +1,0 @@
----
-# vars file for pipoe2h.piddns
-
-packages:
-  ddclient:
-    - ddclient
-  dyndns:
-    - lftp

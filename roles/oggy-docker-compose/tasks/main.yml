@@ -1,0 +1,45 @@
+- name: Clone docker-compose code
+  git:
+    dest: "{{ services_path }}/monitor"
+    repo: 'https://github.com/yuyuvn/prometheus'
+  notify:
+  - Restart monitor
+
+- name: Create configs prometheus
+  template:
+    src: prometheus/prometheus.yml
+    dest: "{{ services_path }}/monitor/prometheus/prometheus.yml"
+  notify:
+  - Restart monitor
+
+- name: Create configs grafana
+  template:
+    src: grafana/config.monitoring
+    dest: "{{ services_path }}/monitor/grafana/config.monitoring"
+  notify:
+  - Restart monitor
+
+- name: Copy binary monitor
+  template:
+    src: monitor
+    dest: /usr/local/bin/monitor
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+  - Restart monitor
+
+- name: Copy systemd file monitor
+  template:
+    src: monitor.service
+    dest: /etc/systemd/system/monitor.service
+    owner: root
+    group: root
+  notify:
+    - Restart monitor
+
+- name: Enable monitor
+  systemd:
+    name: monitor
+    state: started
+    enabled: yes

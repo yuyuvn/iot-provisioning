@@ -46,7 +46,7 @@
 - name: Mount server
   mount:
     path: /mnt/nas
-    src: //{{ smb_server }}/share
+    src: //{{ services.plex.smb_server }}/share
     fstype: cifs
     state: mounted
     opts: username=guest,password="",vers=1.0

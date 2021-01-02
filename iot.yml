@@ -1,5 +1,7 @@
 ---
 - hosts: pi
+  vars:
+    target_domains: "{{ [domains.v4, domains.v6] }}"
   roles:
   - name: nodejs
     tags:
@@ -29,4 +31,17 @@
     become: true
     tags:
     - plexmediaserver
+  - role: ansible-role-docker-master
+    become: true
+    tags:
+    - docker
+  - name: mornin
+    become: true
+    tags:
+    - services
+    - mornin
+  - name: node_exporter
+    become: true
+    tags:
+    - monitoring
 

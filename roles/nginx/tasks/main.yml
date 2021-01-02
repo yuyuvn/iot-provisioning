@@ -52,3 +52,35 @@
     name: nginx
     state: started
     enabled: yes
+
+- name: "Create managed zone"
+  gcp_dns_managed_zone:
+    name: "{{ domains.v6.managed_zone_name }}"
+    dns_name: "{{ domains.v6.domain }}."
+    project: "{{ gcp_project }}"
+    description: "Ansible managed zone"
+    auth_kind: serviceaccount
+    service_account_contents: "{{ gcp_serviceaccount_content }}"
+    state: present
+  register: managed_zone
+
+# TODO: not working
+# - name: Get IPv6
+#   uri:
+#     url: https://ipv6.icanhazip.com
+#     return_content: yes
+#   register: ipv6
+#   failed_when: ipv6.content is not regex("(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+
+# - name: Update record
+#   gcp_dns_resource_record_set:
+#     name: "*.{{ domains.v6.domain }}."
+#     managed_zone: "{{ managed_zone }}"
+#     type: "AAAA"
+#     ttl: 60
+#     target:
+#     - "{{ ipv6.content }}"
+#     project: "{{ gcp_project }}"
+#     auth_kind: serviceaccount
+#     service_account_contents: "{{ gcp_serviceaccount_content }}"
+#     state: present

@@ -1,0 +1,12 @@
+- name: Create link for cert
+  file:
+    src: /etc/letsencrypt/certs/fullchain_{{ domains.monitor.domain }}
+    dest: /etc/letsencrypt/certs/fullchain_monitor
+    state: link
+
+- name: Create link for key
+  file:
+    src: /etc/letsencrypt/keys/{{ domains.monitor.domain }}.key
+    dest: /etc/letsencrypt/keys/monitor.key
+    state: link
+

@@ -1,13 +1,13 @@
-- name: install pip3
-  apt:
-    name: python3-pip
-    state: present
+# - name: install pip3
+#   apt:
+#     name: python3-pip
+#     state: present
 
-- name: Replace python to python3
-  shell: mv /usr/bin/python /usr/bin/python.bk && ln -s /usr/bin/python3 /usr/bin/python
-  become: yes
-  args:
-    creates: /usr/bin/python.bk
+# - name: Replace python to python3
+#   shell: mv /usr/bin/python /usr/bin/python.bk && ln -s /usr/bin/python3 /usr/bin/python
+#   become: yes
+#   args:
+#     creates: /usr/bin/python.bk
 
 - name: "Install google-auth lib"
   pip:
@@ -37,6 +37,6 @@
 
 - name: "Challenge"
   include_tasks: challenge.yml
-  with_items: "{{ [domains.v4, domains.v6] }}"
+  with_items: "{{ target_domains }}"
   loop_control:
     loop_var: target
