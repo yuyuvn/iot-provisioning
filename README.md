@@ -31,4 +31,4 @@ ansible-playbook -i inventory/hosts --ask-vault-pass monitor.yml
 ```
 
 ## TODO
-* Provisioning for my curtain bot
+* Add nginx exporter
