@@ -11,6 +11,11 @@
     tags:
     - services
     - ir
+  - name: anime-fetcher
+    become: true
+    tags:
+    - services
+    - anime-fetcher
   - name: pihole
     tags:
     - pihole
