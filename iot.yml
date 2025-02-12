@@ -2,10 +2,8 @@
 - hosts: pi
   vars:
     target_domains: "{{ [domains.v4, domains.v6] }}"
+    inlets_type: client
   roles:
-  - name: nodejs
-    tags:
-    - nodejs
   - name: ir-control-node
     become: true
     tags:
@@ -16,12 +14,6 @@
     tags:
     - services
     - anime-fetcher
-  - name: pihole
-    tags:
-    - pihole
-  - name: golang
-    tags:
-    - golang
   - role: lets-encrypt
     become: true
     tags:
@@ -32,21 +24,11 @@
     tags:
     - ssl
     - nginx
-  - role: plexmediaserver
+  - role: home-assistant
     become: true
     tags:
-    - plexmediaserver
-  - role: ansible-role-docker-master
-    become: true
+    - home-assistant
+  - name: pihole
     tags:
-    - docker
-  - name: mornin
-    become: true
-    tags:
-    - services
-    - mornin
-  - name: node_exporter
-    become: true
-    tags:
-    - monitoring
+    - pihole
 

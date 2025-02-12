@@ -1,9 +1,0 @@
-#!/bin/bash
-
-{% if inlets_type == "server" %}
-  inlets server --port={{ item.port }} --token="{{ service.inlets.token }}"
-{% else %}
-  inlets client --remote wss://{{ item.subdomain }}.iot.clicia.dev:344 --upstream={{ item.target }} --token="{{ service.inlets.token }}"
-{% endif %}
-
-

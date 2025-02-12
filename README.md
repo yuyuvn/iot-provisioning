@@ -29,6 +29,3 @@ ansible-playbook -i inventory/hosts --ask-vault-pass iot.yml
 ```bash
 ansible-playbook -i inventory/hosts --ask-vault-pass monitor.yml
 ```
-
-## TODO
-* Add nginx exporter

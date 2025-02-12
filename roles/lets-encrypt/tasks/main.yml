@@ -1,7 +1,7 @@
-# - name: install pip3
-#   apt:
-#     name: python3-pip
-#     state: present
+- name: install pip3
+  apt:
+    name: python3-pip
+    state: present
 
 # - name: Replace python to python3
 #   shell: mv /usr/bin/python /usr/bin/python.bk && ln -s /usr/bin/python3 /usr/bin/python
@@ -9,13 +9,15 @@
 #   args:
 #     creates: /usr/bin/python.bk
 
-- name: "Install google-auth lib"
-  pip:
-    name: google-auth
+- name: install pip3
+  apt:
+    name: python3-google-auth
+    state: present
 
-- name: "Install requests lib"
-  pip:
-    name: requests
+- name: install pip3
+  apt:
+    name: python3-requests
+    state: present
 
 - name: "Create required directories in /etc/letsencrypt"
   file:

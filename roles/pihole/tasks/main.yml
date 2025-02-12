@@ -1,60 +1,56 @@
-- shell: which pihole
-  register: result_path
-  ignore_errors: True
+---
+- name: Install Docker and Docker Compose
+  ansible.builtin.apt:
+    name:
+      - docker
+      - docker-compose
+    state: present
+    update_cache: yes
+  become: true
 
-- name: Install pihole
-  block:
-    - name: "Download Pi-Hole installer"
-      get_url:
-        url: https://install.pi-hole.net
-        dest: ~/install-pihole.sh
-        mode: 0740
+- name: Ensure required directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ pihole_config_dir }}"
+    - "{{ pihole_config_dir }}/etc-pihole"
+    - "{{ pihole_config_dir }}/etc-dnsmasq.d"
+  become: true
 
-    - name: Create pihole configuration directory
-      become: True
-      file:
-        name: "{{ fspath_pihole_config }}"
-        state: directory
-        owner: root
-        group: root
-        mode: 0755
+- name: Copy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pihole_config_dir }}/docker-compose.yml"
+    mode: '0644'
+  register: compose_file
+  become: true
 
-    - name: Create pihole configuration
-      become: True
-      template:
-        src: setupVars.conf
-        dest: "{{ fspath_pihole_config }}/setupVars.conf"
-        owner: root
-        group: root
-        mode: 0644
+- name: Copy systemd service file
+  ansible.builtin.template:
+    src: pihole.service.j2
+    dest: /etc/systemd/system/pihole.service
+    mode: '0644'
+  become: true
+  register: service_file
 
-    - name: Install Pi-Hole
-      shell: "/home/pi/install-pihole.sh --unattended"
-      become: True
-      register: dbg_install_pihole
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: true
+  when: service_file.changed
 
-    - name: Set PiHole to update every week
-      become: True
-      replace:
-        path: /etc/cron.d/pihole
-        regexp: '^#(.*updatePihole.*)$'
-        replace: '\1'
-        backup: yes
+- name: Ensure Docker is running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+  become: true
 
-    - name: Change lighttp to 81
-      become: True
-      shell: sed -i 's/= 80/= 81/' /etc/lighttpd/lighttpd.conf
-
-    - name: reload lighttp
-      become: true
-      systemd:
-        name: lighttp
-        state: reloaded
-        daemon_reload: yes
-  
-  when: result_path is failed
-
-- name: Delete installer
-  file:
-    path: ~/install-pihole.sh
-    state: absent
+- name: Enable and start Pi-hole service
+  ansible.builtin.systemd:
+    name: pihole
+    state: started
+    enabled: yes
+  become: true

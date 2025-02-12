@@ -1,6 +1,0 @@
-- name: Restart mornin
-  systemd:
-    name: mornin-plus-node-controll
-    state: restarted
-    daemon_reload: yes
-

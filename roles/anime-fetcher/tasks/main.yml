@@ -2,12 +2,21 @@
   git:
     dest: "{{ services_path }}/anime-fetcher"
     repo: 'https://github.com/yuyuvn/anime-fetcher'
+    force: yes
   notify:
     - Restart anime fetcher
 
+- name: Install nodejs and npm
+  apt:
+    name: 
+      - nodejs
+      - npm
+    state: present
+
 - name: Install node modules
-  yarn:
+  npm:
     path: "{{ services_path }}/anime-fetcher"
+    state: present
 
 - name: Copy binary anime fetcher
   template:

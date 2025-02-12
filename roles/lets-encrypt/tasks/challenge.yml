@@ -50,7 +50,7 @@
 - name: Pause for DNS updated
   pause:
     seconds: 10
-  retries: 20
+  retries: 100
   delay: 10
   until: "item[1][0] in lookup('community.general.dig', item[0] + './TXT')"
   loop: "{{ acme_challenge_your_domain.challenge_data_dns | dictsort }}"
@@ -71,3 +71,4 @@
   register: result
   until: "'cert_days' in result"
   when: acme_challenge_your_domain is changed
+  notify: Reload nginx

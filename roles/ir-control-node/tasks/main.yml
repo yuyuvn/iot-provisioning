@@ -2,12 +2,21 @@
   git:
     dest: "{{ services_path }}/ir-control-node"
     repo: 'https://github.com/yuyuvn/ir-control-node'
+    force: yes
   notify:
     - Restart IR control service
 
+- name: Install nodejs and npm
+  apt:
+    name: 
+      - nodejs
+      - npm
+    state: present
+
 - name: Install node modules
-  yarn:
+  npm:
     path: "{{ services_path }}/ir-control-node"
+    state: present
 
 - name: Copy binary IR control node
   template:
