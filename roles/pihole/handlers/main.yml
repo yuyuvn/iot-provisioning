@@ -1,0 +1,7 @@
+---
+- name: Restart Pi-hole
+  ansible.builtin.systemd:
+    name: pihole
+    state: restarted
+    daemon_reload: yes
+  become: true 

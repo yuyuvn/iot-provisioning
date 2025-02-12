@@ -1,0 +1,89 @@
+---
+- name: Install Docker CE
+  ansible.builtin.apt:
+    name:
+      - docker
+      - docker-compose
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: "clicia"
+    groups: docker
+    append: yes
+  become: true
+
+- name: Ensure required directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ home_assistant_config_dir }}"
+
+- name: Copy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ home_assistant_config_dir }}/docker-compose.yml"
+    mode: '0644'
+  register: compose_file
+
+- name: Copy systemd service file
+  ansible.builtin.template:
+    src: homeassistant.service.j2
+    dest: /etc/systemd/system/homeassistant.service
+    mode: '0644'
+  become: true
+  register: service_file
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: true
+  when: service_file.changed
+
+- name: Ensure Docker is running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Enable and start Home Assistant service
+  ansible.builtin.systemd:
+    name: homeassistant
+    state: started
+    enabled: yes
+  become: true
+
+- name: Copy Home Assistant configuration file
+  ansible.builtin.template:
+    src: configuration.yaml.j2
+    dest: "{{ home_assistant_config_dir }}/configuration.yaml"
+    mode: '0644'
+  notify: Restart Home Assistant
+  tags:
+  - home-assistant-config
+
+- name: Create MQTT config directories
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_dir }}/mqtt5/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - config
+    - data
+    - log
+
+- name: Copy Mosquitto configuration file
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ home_assistant_config_dir }}/mqtt5/config/{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+  notify: Restart Home Assistant
+  loop:
+    - mosquitto.conf
+    - mosquitto.conf

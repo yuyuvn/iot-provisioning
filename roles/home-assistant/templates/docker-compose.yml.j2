@@ -1,0 +1,25 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:{{ home_assistant_version | default('stable') }}"
+    volumes:
+      - {{ home_assistant_config_dir }}:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ={{ timezone | default('UTC') }}
+  mqtt5:
+    image: eclipse-mosquitto
+    container_name: mqtt5
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - {{ home_assistant_config_dir }}/mqtt5/config:/mosquitto/config:rw
+      - {{ home_assistant_config_dir }}/mqtt5/data:/mosquitto/data:rw
+      - {{ home_assistant_config_dir }}/mqtt5/log:/mosquitto/log:rw
+    restart: unless-stopped

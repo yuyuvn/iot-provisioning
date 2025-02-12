@@ -29,6 +29,9 @@ subdomains:
 - subdomain: pihole
   target: 127.0.0.1:81
   schema: http
+- subdomain: mqtt
+  target: 127.0.0.1:9001
+  schema: http
 
 services_path: /var/services
 ssl_path: /etc/nginx/ssl/

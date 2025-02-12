@@ -1,0 +1,24 @@
+- name: Copy binary tunnel
+  template:
+    src: serveo
+    dest: /usr/local/bin/serveo
+    mode: 0755
+    owner: pi
+    group: pi
+  notify:
+  - Restart tunnel
+
+- name: Copy systemd file tunnel
+  template:
+    src: serveo.service
+    dest: /etc/systemd/system/serveo.service
+    owner: root
+    group: root
+  notify:
+  - Restart tunnel
+
+- name: Enable tunnel
+  systemd:
+    name: serveo
+    state: started
+    enabled: yes

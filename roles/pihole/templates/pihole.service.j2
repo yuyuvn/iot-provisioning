@@ -1,0 +1,17 @@
+[Unit]
+Description=Pi-hole Docker Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+WorkingDirectory={{ pihole_config_dir }}
+ExecStart=/usr/bin/docker-compose up
+ExecStop=/usr/bin/docker-compose down
+TimeoutStartSec=0
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target 

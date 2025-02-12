@@ -1,0 +1,12 @@
+[Unit]
+Description=Serveo
+After=network.target
+
+[Service]
+Environment="AUTOSSH_GATETIME=0"
+ExecStart=/usr/bin/autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -R clicia:{{ service.serveo.port }}:localhost:443 serveo.net
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
