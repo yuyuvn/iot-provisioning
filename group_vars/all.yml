@@ -32,6 +32,9 @@ subdomains:
 - subdomain: public
   target: 127.0.0.1:8123
   schema: http
+- subdomain: public-mqtt
+  target: 127.0.0.1:9001
+  schema: http
 
 services_path: /var/services
 ssl_path: /etc/nginx/ssl/
