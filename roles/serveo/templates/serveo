@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/bin/ssh -tt -o "ExitOnForwardFailure yes" -R clicia:{{ service.serveo.port }}:localhost:443 serveo.net
+/usr/bin/autossh -M 0 -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa -i /home/clicia/.ssh/serveo -o "ExitOnForwardFailure yes" -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=no -R clicia:1443:localhost:443 {{ service.serveo.host }} -p {{ service.serveo.port }}

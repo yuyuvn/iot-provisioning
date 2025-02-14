@@ -3,22 +3,25 @@
   vars:
     target_domains: "{{ [domains.monitor] }}"
   roles:
-  - role: lets-encrypt
+  # - role: lets-encrypt
+  #   become: true
+  #   tags:
+  #   - ssl
+  #   - lets-encrypt
+  # - role: oggy-lets-encrypt
+  #   become: true
+  #   tags:
+  #   - ssl
+  #   - lets-encrypt
+  # - role: ansible-role-docker-master
+  #   become: true
+  #   tags:
+  #   - docker
+  # - role: oggy-docker-compose
+  #   become: true
+  #   tags:
+  #   - oggy-docker-compose
+  - role: serveo-server
     become: true
     tags:
-    - ssl
-    - lets-encrypt
-  - role: oggy-lets-encrypt
-    become: true
-    tags:
-    - ssl
-    - lets-encrypt
-  - role: ansible-role-docker-master
-    become: true
-    tags:
-    - docker
-  - role: oggy-docker-compose
-    become: true
-    tags:
-    - oggy-docker-compose
-
+    - serveo-server

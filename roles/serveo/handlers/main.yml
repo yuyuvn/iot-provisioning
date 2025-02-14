@@ -1,4 +1,4 @@
-- name: Restart tunnel
+- name: Restart serveo
   systemd:
     name: serveo
     state: restarted

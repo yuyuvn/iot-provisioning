@@ -1,6 +1,6 @@
 subdomains:
 - subdomain: torrent
-  target: 10.0.33.80:9090
+  target: 192.168.1.6:9090
   schema: http
 - subdomain: ir
   target: 127.0.0.1:1880
@@ -23,14 +23,14 @@ subdomains:
 - subdomain: home
   target: 127.0.0.1:8123
   schema: http
-- subdomain: home-wifi
-  target: 127.0.0.1:8123
-  schema: http
 - subdomain: pihole
   target: 127.0.0.1:81
   schema: http
 - subdomain: mqtt
   target: 127.0.0.1:9001
+  schema: http
+- subdomain: public
+  target: 127.0.0.1:8123
   schema: http
 
 services_path: /var/services
@@ -51,4 +51,4 @@ gcp_project: clicia-iot-281611
 
 home_assistant_config_dir: /var/services/home-assistant
 docker_compose_dir: /var/services/home-assistant
-docker_compose_dir: /var/services/home-assistant
+home_assistant_backup_server: 192.168.1.6

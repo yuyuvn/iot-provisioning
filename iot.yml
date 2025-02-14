@@ -31,4 +31,7 @@
   - name: pihole
     tags:
     - pihole
-
+  - role: serveo
+    become: true
+    tags:
+    - serveo

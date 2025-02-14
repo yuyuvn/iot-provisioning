@@ -2,11 +2,11 @@
   template:
     src: serveo
     dest: /usr/local/bin/serveo
-    mode: 0755
-    owner: pi
-    group: pi
+    mode: '0755'
+    owner: clicia
+    group: clicia
   notify:
-  - Restart tunnel
+  - Restart serveo
 
 - name: Copy systemd file tunnel
   template:
@@ -15,10 +15,67 @@
     owner: root
     group: root
   notify:
-  - Restart tunnel
+  - Restart serveo
 
 - name: Enable tunnel
   systemd:
     name: serveo
     state: started
     enabled: yes
+
+- name: Install autossh
+  apt:
+    name: autossh
+    state: present
+  become: true
+
+- name: Create .ssh directory
+  ansible.builtin.file:
+    path: "/home/clicia/.ssh"
+    state: directory
+    mode: '0755'
+
+- name: Add serveo private key
+  ansible.builtin.copy:
+    content: "{{ service.serveo.private_key }}"
+    dest: "/home/clicia/.ssh/serveo"
+    mode: '0600'
+    owner: clicia
+    group: clicia
+
+- name: Copy serveo service file
+  template:
+    src: serveo.service
+    dest: /etc/systemd/system/serveo.service
+    mode: '0644'
+  become: true
+  notify: Restart serveo
+
+- name: Copy serveo timer file
+  template:
+    src: serveo.timer
+    dest: /etc/systemd/system/serveo.timer
+    mode: '0644'
+    owner: root
+    group: root
+  become: true
+  notify: Restart serveo
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  become: true
+
+- name: Enable and start serveo service
+  systemd:
+    name: serveo
+    state: started
+    enabled: yes
+  become: true
+
+- name: Enable and start serveo timer
+  systemd:
+    name: serveo.timer
+    state: started
+    enabled: yes
+  become: true

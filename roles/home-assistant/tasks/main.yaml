@@ -15,6 +15,14 @@
     append: yes
   become: true
 
+- name: Mount server
+  mount:
+    path: /mnt/nas
+    src: //{{ home_assistant_backup_server }}/share
+    fstype: cifs
+    state: mounted
+    opts: username=guest,password="",vers=1.0
+
 - name: Ensure required directories exist
   ansible.builtin.file:
     path: "{{ item }}"
@@ -66,6 +74,16 @@
   tags:
   - home-assistant-config
 
+- name: Ensure required YAML files exist
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_dir }}/{{ item }}"
+    state: touch
+    mode: '0644'
+  loop:
+    - automations.yaml
+    - scripts.yaml 
+    - scenes.yaml
+
 - name: Create MQTT config directories
   ansible.builtin.file:
     path: "{{ home_assistant_config_dir }}/mqtt5/{{ item }}"
@@ -86,4 +104,4 @@
   notify: Restart Home Assistant
   loop:
     - mosquitto.conf
-    - mosquitto.conf
+    - pwfile
