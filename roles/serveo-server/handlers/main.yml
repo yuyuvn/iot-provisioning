@@ -1,0 +1,7 @@
+---
+- name: Restart Serveo server
+  ansible.builtin.systemd:
+    name: serveo-server
+    state: restarted
+    daemon_reload: yes
+  become: true 

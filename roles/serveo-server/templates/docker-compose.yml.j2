@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  serveo:
+    container_name: serveo-server
+    image: ghcr.io/yuyuvn/docker-serveo-server:sha-a451bb9
+    command:
+    - serveo
+    - "-private_key_path=/etc/ssh/id_ed25519"
+    ports:
+      - "1443:22"
+      - "443:1443"
+    working_dir: /etc/ssh
+    volumes:
+      - {{ serveo_config_dir }}/ssh:/etc/ssh
+      - {{ serveo_config_dir }}/ssh/authorized_keys:/root/.ssh/authorized_keys:ro
+    environment:
+      - TZ={{ timezone | default('UTC') }}
+    restart: unless-stopped

@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily restart of Serveo Tunnel Service
+
+[Timer]
+OnCalendar=*-*-* 03:50:00 Asia/Tokyo
+Unit=serveo-server.service
+
+[Install]
+WantedBy=timers.target

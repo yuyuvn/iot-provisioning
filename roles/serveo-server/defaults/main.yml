@@ -1,0 +1,15 @@
+---
+# Serveo server configuration directory
+serveo_config_dir: "/opt/serveo"
+
+# System timezone
+timezone: "UTC"
+
+# Docker Compose version
+docker_compose_version: "2.17.2"
+
+# SSH host keys will be generated if they don't exist
+ssh_key_types:
+  - rsa
+  - ecdsa
+  - ed25519 

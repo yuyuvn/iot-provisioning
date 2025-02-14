@@ -1,0 +1,102 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+      - openssh-client
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Ensure Docker group exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+  become: true
+
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  become: true
+
+- name: Create required directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ serveo_config_dir }}"
+    - "{{ serveo_config_dir }}/ssh"
+  become: true
+
+- name: Generate ED25519 SSH key
+  ansible.builtin.command:
+    cmd: "ssh-keygen -t ed25519 -f {{ serveo_config_dir }}/ssh/id_ed25519 -N ''"
+    creates: "{{ serveo_config_dir }}/ssh/id_ed25519"
+  become: true
+
+- name: Add serveo public key to authorized_keys
+  ansible.builtin.copy:
+    content: "{{ service.serveo.public_key }}"
+    dest: "{{ serveo_config_dir }}/ssh/authorized_keys"
+    mode: '0600'
+  become: true
+
+- name: Set correct permissions on SSH keys
+  ansible.builtin.file:
+    path: "{{ serveo_config_dir }}/ssh"
+    mode: '0600'
+    recurse: yes
+  become: true
+
+- name: Copy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ serveo_config_dir }}/docker-compose.yml"
+    mode: '0644'
+  become: true
+  notify: Restart Serveo server
+
+- name: Copy systemd service file
+  ansible.builtin.template:
+    src: serveo-server.service.j2
+    dest: /etc/systemd/system/serveo-server.service
+    mode: '0644'
+  become: true
+  notify: Restart Serveo server
+
+- name: Copy serveo timer file
+  template:
+    src: serveo-server.timer.j2
+    dest: /etc/systemd/system/serveo-server.timer
+    mode: '0644'
+  become: true
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: true
+
+- name: Ensure Docker is running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+  become: true
+
+- name: Enable and start Serveo server
+  ansible.builtin.systemd:
+    name: serveo-server
+    state: started
+    enabled: yes
+  become: true
+
+- name: Enable and start serveo timer
+  systemd:
+    name: serveo-server.timer
+    state: started
+    enabled: yes
+  become: true
