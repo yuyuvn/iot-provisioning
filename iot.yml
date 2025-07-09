@@ -28,6 +28,7 @@
     become: true
     tags:
     - home-assistant
+    - ha
   - name: pihole
     tags:
     - pihole
@@ -35,3 +36,7 @@
     become: true
     tags:
     - serveo
+  # - role: plexmediaserver
+  #   become: true
+  #   tags:
+  #   - plex

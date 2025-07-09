@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Environment="AUTOSSH_GATETIME=0"
 ExecStart=/usr/local/bin/serveo
+LimitNOFILE=65535
 User=clicia
 Group=clicia
 Restart=always

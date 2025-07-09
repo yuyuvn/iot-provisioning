@@ -13,3 +13,23 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
   - 127.0.0.1
+
+rest_command:
+  download_anime:
+    url: "{{ service.anime_fetcher.download_url }}"
+    method: "POST"
+    content_type: "application/json"
+    payload: |
+      {
+        "bittorrent_url": "https://torrent.iot.clicia.dev",
+        "auth": "{{ service.anime_fetcher.auth }}"
+      }
+
+plant:
+  plant_pot:
+    sensors:
+      moisture: sensor.plant_sensor_69a4_moisture
+      battery: sensor.plant_sensor_69a4_battery
+      temperature: sensor.plant_sensor_69a4_temperature
+      conductivity: sensor.plant_sensor_69a4_conductivity
+      brightness: sensor.plant_sensor_69a4_illuminance

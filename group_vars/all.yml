@@ -35,21 +35,13 @@ subdomains:
 - subdomain: public-mqtt
   target: 127.0.0.1:9001
   schema: http
+- subdomain: ma
+  target: 127.0.0.1:8095
+  schema: http
 
 services_path: /var/services
 ssl_path: /etc/nginx/ssl/
 
-acme_email: "admin@clicia.dev"
-domains:
-  v4:
-    domain: iot.clicia.dev
-    managed_zone_name: iot-clicia-dev
-  v6:
-    domain: iot-v6.clicia.dev
-    managed_zone_name: iot-v6-clicia-dev
-  monitor:
-    domain: iot-monitor.clicia.dev
-    managed_zone_name: iot-monitor-clicia-dev
 gcp_project: clicia-iot-281611
 
 home_assistant_config_dir: /var/services/home-assistant
