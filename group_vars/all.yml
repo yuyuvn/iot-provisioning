@@ -46,4 +46,4 @@ gcp_project: clicia-iot-281611
 
 home_assistant_config_dir: /var/services/home-assistant
 docker_compose_dir: /var/services/home-assistant
-home_assistant_backup_server: 192.168.1.6
+home_assistant_backup_server: 192.168.50.168
