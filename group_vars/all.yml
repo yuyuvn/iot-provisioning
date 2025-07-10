@@ -1,6 +1,6 @@
 subdomains:
 - subdomain: torrent
-  target: 192.168.1.6:9090
+  target: 192.168.50.168:9090
   schema: http
 - subdomain: ir
   target: 127.0.0.1:1880
@@ -9,7 +9,7 @@ subdomains:
   target: 127.0.0.1:5322
   schema: http
 - subdomain: webaccess
-  target: 192.168.1.6:9000
+  target: 192.168.50.168:9000
   schema: https
 - subdomain: music
   target: 127.0.0.1:32400
