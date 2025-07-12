@@ -46,6 +46,23 @@
   loop_control:
     loop_var: item
 
+- name: Remove unmanaged nginx site configs
+  find:
+    paths: /etc/nginx/sites-enabled
+    patterns: "*.conf"
+    file_type: file
+  register: nginx_site_confs
+
+- name: Delete nginx site configs not in subdomains
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ nginx_site_confs.files }}"
+  notify: reload nginx
+  when: >
+    (item.path | basename | regex_replace('\.conf$', '')) not in
+    (subdomains | map(attribute='subdomain') | list)
+
 - name: start nginx
   become: true
   systemd:
