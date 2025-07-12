@@ -2,21 +2,12 @@ subdomains:
 - subdomain: torrent
   target: 192.168.50.168:9090
   schema: http
-- subdomain: ir
-  target: 127.0.0.1:1880
-  schema: http
-- subdomain: curtain
-  target: 127.0.0.1:5322
-  schema: http
-- subdomain: webaccess
-  target: 192.168.50.168:9000
-  schema: https
-- subdomain: music
-  target: 127.0.0.1:32400
-  schema: http
-- subdomain: node
-  target: 127.0.0.1:9100
-  schema: http
+# - subdomain: music
+#   target: 127.0.0.1:32400
+#   schema: http
+# - subdomain: node
+#   target: 127.0.0.1:9100
+#   schema: http
 - subdomain: anime
   target: 127.0.0.1:5321
   schema: http
@@ -38,6 +29,9 @@ subdomains:
 - subdomain: ma
   target: 127.0.0.1:8095
   schema: http
+- subdomain: router
+  target: 192.168.50.1:8443
+  schema: https
 
 services_path: /var/services
 ssl_path: /etc/nginx/ssl/
