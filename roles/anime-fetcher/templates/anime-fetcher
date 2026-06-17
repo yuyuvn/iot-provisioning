@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd {{ services_path }}/anime-fetcher
-node index.js --use-openssl-ca

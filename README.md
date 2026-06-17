@@ -10,6 +10,8 @@ source ansible/bin/activate
 pip install ansible
 ```
 
+Create `.vault_pass` file contain vaul password
+
 ### Active environments
 ```bash
 source ansible/bin/activate
@@ -21,10 +23,10 @@ My default password
 ## Commands
 ### Provisioning pi server
 ```bash
-ansible-playbook -i inventory/hosts --ask-vault-pass iot.yml
+ansible-playbook iot.yml
 ```
 
-### Provisioning monitor server
+### Provisioning proxy server
 ```bash
-ansible-playbook -i inventory/hosts --ask-vault-pass monitor.yml
+ansible-playbook proxy.yml
 ```

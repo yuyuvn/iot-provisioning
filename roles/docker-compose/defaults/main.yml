@@ -1,0 +1,8 @@
+---
+# Docker installation configuration
+docker_use_official_repo: true  # Use official Docker repository (true) or distribution packages (false)
+
+# Users to add to docker group (optional)
+# Example: docker_users: ["user1", "user2"]
+docker_users: []
+

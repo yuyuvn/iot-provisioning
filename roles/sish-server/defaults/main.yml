@@ -1,0 +1,42 @@
+---
+# Sish server configuration
+sish_config_dir: "/opt/sish"
+sish_data_dir: "/opt/sish/data"
+sish_logs_dir: "/opt/sish/logs"
+
+# Docker configuration
+sish_docker_image: "antoniomika/sish:latest"
+sish_docker_restart_policy: "unless-stopped"
+
+# Sish server settings
+sish_bind_address: "0.0.0.0"
+sish_http_port: "8080"
+sish_https_port: "1443"
+sish_ssh_port: "2222"
+
+# Domain configuration
+sish_domain: "{{ ansible_fqdn | default(ansible_hostname) }}"
+sish_http_address: "{{ sish_bind_address }}:{{ sish_http_port }}"
+sish_https_address: "{{ sish_bind_address }}:{{ sish_https_port }}"
+sish_ssh_address: "{{ sish_bind_address }}:{{ sish_ssh_port }}"
+
+# Authentication settings - use serveo private key
+sish_auth_key: ""
+sish_auth_key_file: "{{ serveo_config_dir | default('/opt/serveo') }}/ssh/id_ed25519"
+serveo_config_dir: "/opt/serveo"
+
+# SSL/TLS settings
+sish_https_cert: ""
+sish_https_key: ""
+sish_https_cert_file: ""
+sish_https_key_file: ""
+
+# Additional sish configuration
+sish_append_domain: ""
+sish_append_domain_to_subdomains: false
+sish_append_domain_to_root: false
+sish_append_domain_to_aliases: false
+sish_append_domain_to_aliases_subdomains: false
+
+# System timezone
+timezone: "UTC"

@@ -1,0 +1,45 @@
+---
+- name: Add Tailscale repository
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/rhel/{{ ansible_distribution_major_version }}/tailscale.repo"
+    dest: /etc/yum.repos.d/tailscale.repo
+    mode: '0644'
+  become: true
+
+- name: Install Tailscale
+  ansible.builtin.dnf:
+    name: tailscale
+    state: present
+  become: true
+
+- name: Enable and start tailscaled service
+  ansible.builtin.systemd:
+    name: tailscaled
+    state: started
+    enabled: yes
+  become: true
+
+- name: Enable IP forwarding (required for exit node)
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    value: "1"
+    sysctl_set: yes
+    state: present
+    reload: yes
+  loop:
+    - net.ipv4.ip_forward
+    - net.ipv6.conf.all.forwarding
+  become: true
+  when: tailscale_exit_node
+
+- name: Connect to Tailscale network
+  ansible.builtin.command:
+    cmd: >-
+      tailscale up
+      --authkey {{ tailscale_auth_key }}
+      {{ '--advertise-exit-node' if tailscale_exit_node else '' }}
+      {{ tailscale_extra_args }}
+  become: true
+  when: tailscale_auth_key != ""
+  register: tailscale_up
+  changed_when: "'already connected' not in tailscale_up.stderr"

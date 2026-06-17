@@ -1,0 +1,4 @@
+---
+tailscale_auth_key: ""
+tailscale_extra_args: ""
+tailscale_exit_node: true

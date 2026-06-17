@@ -1,3 +1,0 @@
----
-- name: INCLUDE | Install Plex Media Server
-  include_tasks: install.yml

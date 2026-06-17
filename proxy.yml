@@ -1,0 +1,14 @@
+---
+- hosts: proxy
+  roles:
+  - name: docker-compose
+    tags:
+    - docker-compose
+  - name: sish-server
+    tags:
+    - sish
+    - sish-server
+  - role: tailscale
+    become: true
+    tags:
+    - tailscale

@@ -1,0 +1,122 @@
+---
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Create sish configuration directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+  loop:
+    - "{{ sish_config_dir }}"
+    - "{{ sish_data_dir }}"
+    - "{{ sish_logs_dir }}"
+
+- name: Ensure sish SSH directory exists
+  file:
+    path: "{{ sish_config_dir }}/ssh"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  become: yes
+
+- name: Create required directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ sish_config_dir }}"
+    - "{{ sish_config_dir }}/ssh"
+  become: true
+
+- name: Generate ED25519 SSH key
+  ansible.builtin.command:
+    cmd: "ssh-keygen -t ed25519 -f {{ sish_config_dir }}/ssh/id_ed25519 -N ''"
+    creates: "{{ sish_config_dir }}/ssh/id_ed25519"
+  become: true
+
+- name: Create sish authentication keys directory
+  file:
+    path: "{{ sish_data_dir }}/pubkeys"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Read sish public key content
+  slurp:
+    src: "{{ sish_config_dir }}/ssh/id_ed25519.pub"
+  register: sish_pubkey_content
+  become: yes
+
+- name: Copy sish public key to sish authentication directory
+  copy:
+    content: "{{ sish_pubkey_content.content | b64decode }}"
+    dest: "{{ sish_data_dir }}/pubkeys/sish_key.pub"
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Copy sish public key to sish authentication directory
+  copy:
+    content: "{{ service.sish.public_key }}"
+    dest: "{{ sish_data_dir }}/pubkeys/id_ed25519.pub"
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify: restart sish
+
+- name: Create SSL certificate file
+  copy:
+    content: "{{ sish_https_cert }}"
+    dest: "{{ sish_data_dir }}/https_cert.pem"
+    owner: root
+    group: root
+    mode: '0600'
+  become: yes
+  when: sish_https_cert != ""
+
+- name: Create SSL private key file
+  copy:
+    content: "{{ sish_https_key }}"
+    dest: "{{ sish_data_dir }}/https_key.pem"
+    owner: root
+    group: root
+    mode: '0600'
+  become: yes
+  when: sish_https_key != ""
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ sish_config_dir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify: restart sish
+
+- name: Deploy systemd service file
+  template:
+    src: sish.service.j2
+    dest: /etc/systemd/system/sish.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify:
+    - reload systemd
+    - restart sish
+

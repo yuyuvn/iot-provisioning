@@ -1,0 +1,213 @@
+---
+# Add Docker's official GPG key for APT
+- name: Add Docker's official GPG key (APT)
+  ansible.builtin.shell: |
+    curl -fsSL https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+  become: true
+  when: 
+    - ansible_pkg_mgr == 'apt'
+    - docker_use_official_repo | default(true)
+
+# Add Docker repository for APT
+- name: Add Docker repository (APT)
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    state: present
+    update_cache: yes
+  become: true
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - docker_use_official_repo | default(true)
+
+# Determine distribution name for Docker repo (RHEL/Rocky/AlmaLinux/OracleLinux use 'centos')
+- name: Set Docker distribution name for YUM
+  ansible.builtin.set_fact:
+    docker_repo_dist: "{{ 'centos' if (ansible_distribution | lower in ['redhat', 'rocky', 'almalinux', 'oraclelinux']) else ansible_distribution | lower }}"
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_use_official_repo | default(true)
+
+# Add Docker's official GPG key for YUM
+- name: Add Docker's official GPG key (YUM)
+  ansible.builtin.shell: |
+    rpm --import https://download.docker.com/linux/{{ docker_repo_dist | default('centos') }}/gpg
+  become: true
+  ignore_errors: true
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_use_official_repo | default(true)
+
+# Debug: Display repository information
+- name: Display Docker repository configuration
+  ansible.builtin.debug:
+    msg:
+      - "Distribution: {{ ansible_distribution }}"
+      - "Distribution Major Version: {{ ansible_distribution_major_version }}"
+      - "Architecture: {{ ansible_architecture }}"
+      - "Docker Repo Dist: {{ docker_repo_dist | default('not set') }}"
+      - "Repository URL: https://download.docker.com/linux/{{ docker_repo_dist | default(ansible_distribution | lower) }}/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/stable"
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_use_official_repo | default(true)
+
+# Add Docker repository for YUM using yum_repository module (primary method)
+- name: Add Docker repository (YUM)
+  ansible.builtin.yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable
+    baseurl: https://download.docker.com/linux/{{ docker_repo_dist | default(ansible_distribution | lower) }}/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/{{ docker_repo_dist | default(ansible_distribution | lower) }}/gpg
+    enabled: yes
+    skip_if_unavailable: no
+  become: true
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_use_official_repo | default(true)
+  register: docker_repo_added
+
+# Clean yum cache after adding repository
+- name: Clean yum cache
+  ansible.builtin.command: yum clean all
+  become: true
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_repo_added.changed | default(false)
+
+# Install prerequisites for APT-based systems
+- name: Install required packages for Docker (APT)
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_pkg_mgr == 'apt'
+
+# Install prerequisites for YUM-based systems (before adding Docker repo)
+- name: Install required packages for Docker (YUM)
+  ansible.builtin.yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+  become: true
+  when: ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf'
+
+# Install Docker and Docker Compose from official repo (APT)
+- name: Install Docker and Docker Compose from official repo (APT)
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+  become: true
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - docker_use_official_repo | default(true)
+
+# Install Docker and Docker Compose from distribution repositories (APT)
+- name: Install Docker and Docker Compose from distribution repositories (APT)
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+  become: true
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - not (docker_use_official_repo | default(true))
+
+# Install Docker and Docker Compose from official repo (YUM)
+- name: Install Docker and Docker Compose from official repo (YUM)
+  ansible.builtin.yum:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  become: true
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - docker_use_official_repo | default(true)
+
+# Install Docker and Docker Compose from distribution repositories (YUM)
+- name: Install Docker and Docker Compose from distribution repositories (YUM)
+  ansible.builtin.yum:
+    name:
+      - docker
+      - docker-compose
+    state: present
+  become: true
+  when:
+    - (ansible_pkg_mgr == 'yum' or ansible_pkg_mgr == 'dnf')
+    - not (docker_use_official_repo | default(true))
+
+# Ensure Docker group exists
+- name: Ensure Docker group exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+  become: true
+
+# Add users to docker group
+- name: Add users to docker group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  become: true
+  loop: "{{ docker_users | default([]) }}"
+  when: docker_users is defined and docker_users | length > 0
+
+# Start and enable Docker service
+- name: Start and enable Docker service
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: yes
+  become: true
+
+# Verify Docker installation
+- name: Verify Docker installation
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+  become: true
+
+- name: Display Docker version
+  ansible.builtin.debug:
+    msg: "Docker version: {{ docker_version.stdout }}"
+
+# Verify Docker Compose installation (v2)
+- name: Verify Docker Compose installation (v2)
+  ansible.builtin.command: docker compose version
+  register: docker_compose_v2_version
+  changed_when: false
+  become: true
+  ignore_errors: true
+
+# Verify Docker Compose installation (v1)
+- name: Verify Docker Compose installation (v1)
+  ansible.builtin.command: docker-compose --version
+  register: docker_compose_v1_version
+  changed_when: false
+  become: true
+  ignore_errors: true
+
+- name: Display Docker Compose version
+  ansible.builtin.debug:
+    msg: "Docker Compose version: {{ docker_compose_v2_version.stdout if docker_compose_v2_version.rc == 0 else docker_compose_v1_version.stdout }}"
+  when: docker_compose_v2_version.rc == 0 or docker_compose_v1_version.rc == 0

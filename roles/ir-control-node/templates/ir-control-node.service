@@ -1,8 +1,0 @@
-[Unit]
-Description=IR control service
-
-[Service]
-ExecStart=/usr/local/bin/ir-control-node
-
-[Install]
-WantedBy=multi-user.target

@@ -1,0 +1,75 @@
+services:
+  sish:
+    image: {{ sish_docker_image }}
+    container_name: sish
+    restart: {{ sish_docker_restart_policy }}
+    ports:
+      - "80:{{ sish_http_port }}"
+      - "443:{{ sish_https_port }}"
+      - "{{ sish_ssh_port }}:2222"
+    volumes:
+      - {{ sish_data_dir }}:/home/sish/.sish
+      - {{ sish_logs_dir }}:/var/log/sish
+      - {{ serveo_config_dir }}/ssh:/etc/ssh:ro
+      - {{ sish_data_dir }}/pubkeys:/home/sish/.sish/pubkeys:ro
+    environment:
+      - SISH_SSH_ADDRESS={{ sish_ssh_address }}
+      - SISH_DOMAIN={{ sish_domain }}
+      - SISH_PRIVATE_KEYS_DIRECTORY=/etc/ssh
+      - SISH_AUTHENTICATION_KEYS_DIRECTORY=/home/sish/.sish/pubkeys
+{% if sish_https_cert != "" %}
+      - SISH_HTTPS_CERT_FILE=/home/sish/.sish/https_cert.pem
+      - SISH_HTTPS_KEY_FILE=/home/sish/.sish/https_key.pem
+{% endif %}
+{% if sish_append_domain != "" %}
+      - SISH_APPEND_DOMAIN={{ sish_append_domain }}
+{% endif %}
+{% if sish_append_domain_to_subdomains %}
+      - SISH_APPEND_DOMAIN_TO_SUBDOMAINS=true
+{% endif %}
+{% if sish_append_domain_to_root %}
+      - SISH_APPEND_DOMAIN_TO_ROOT=true
+{% endif %}
+{% if sish_append_domain_to_aliases %}
+      - SISH_APPEND_DOMAIN_TO_ALIASES=true
+{% endif %}
+{% if sish_append_domain_to_aliases_subdomains %}
+      - SISH_APPEND_DOMAIN_TO_ALIASES_SUBDOMAINS=true
+{% endif %}
+    command: >
+      --http-address={{ sish_http_address }}
+      --https-address={{ sish_https_address }}
+      --ssh-address={{ sish_ssh_address }}
+      --domain={{ sish_domain }}
+      --bind-any-host=true
+      --bind-random-ports=false
+      --sni-load-balancer=false
+      --verify-dns=false
+      --verify-ssl=false
+      --sni-proxy=false
+      --private-keys-directory=/etc/ssh
+      --authentication-keys-directory=/home/sish/.sish/pubkeys
+{% if sish_https_cert != "" %}
+      --https-cert-file=/home/sish/.sish/https_cert.pem
+      --https-key-file=/home/sish/.sish/https_key.pem
+{% endif %}
+{% if sish_append_domain != "" %}
+      --append-domain={{ sish_append_domain }}
+{% endif %}
+{% if sish_append_domain_to_subdomains %}
+      --append-domain-to-subdomains
+{% endif %}
+{% if sish_append_domain_to_root %}
+      --append-domain-to-root
+{% endif %}
+{% if sish_append_domain_to_aliases %}
+      --append-domain-to-aliases
+{% endif %}
+{% if sish_append_domain_to_aliases_subdomains %}
+      --append-domain-to-aliases-subdomains
+{% endif %}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
