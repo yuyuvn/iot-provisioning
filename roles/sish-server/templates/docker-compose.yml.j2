@@ -10,7 +10,7 @@ services:
     volumes:
       - {{ sish_data_dir }}:/home/sish/.sish
       - {{ sish_logs_dir }}:/var/log/sish
-      - {{ serveo_config_dir }}/ssh:/etc/ssh:ro
+      - {{ sish_config_dir }}/ssh:/etc/ssh:ro
       - {{ sish_data_dir }}/pubkeys:/home/sish/.sish/pubkeys:ro
     environment:
       - SISH_SSH_ADDRESS={{ sish_ssh_address }}

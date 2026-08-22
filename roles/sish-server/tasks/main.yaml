@@ -1,10 +1,25 @@
 ---
+- name: Disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+  become: yes
+  register: sish_firewalld_disabled
+
 - name: Start and enable Docker service
   systemd:
     name: docker
     state: started
     enabled: yes
   become: yes
+
+- name: Restart Docker to rebuild iptables rules after disabling firewalld
+  systemd:
+    name: docker
+    state: restarted
+  become: yes
+  when: sish_firewalld_disabled.changed
 
 - name: Create sish configuration directories
   file:
@@ -53,19 +68,10 @@
     mode: '0755'
   become: yes
 
-- name: Read sish public key content
-  slurp:
-    src: "{{ sish_config_dir }}/ssh/id_ed25519.pub"
-  register: sish_pubkey_content
-  become: yes
-
-- name: Copy sish public key to sish authentication directory
-  copy:
-    content: "{{ sish_pubkey_content.content | b64decode }}"
-    dest: "{{ sish_data_dir }}/pubkeys/sish_key.pub"
-    owner: root
-    group: root
-    mode: '0644'
+- name: Move sish public key to authentication directory
+  ansible.builtin.command:
+    cmd: "mv {{ sish_config_dir }}/ssh/id_ed25519.pub {{ sish_data_dir }}/pubkeys/sish_key.pub"
+    removes: "{{ sish_config_dir }}/ssh/id_ed25519.pub"
   become: yes
 
 - name: Copy sish public key to sish authentication directory
